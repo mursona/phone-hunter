@@ -1,17 +1,25 @@
-const loadPhone = async(searchText) => {
+const loadPhone = async(searchText, dataLimit) => {
     const url = `https://openapi.programming-hero.com/api/phones?search=${searchText}`;
     const res = await fetch(url);
     const data = await res.json();
-    displayPhone(data.data);
+    displayPhone(data.data, dataLimit);
 }
 
-const displayPhone = phones => {
+const displayPhone = (phones, dataLimit) => {
     const phoneContainer = document.getElementById('phone-container');
 
     phoneContainer.innerText = '';
 
-    // display 20 phones only
-    phones.slice(0, 9);
+    // display 10 phones only
+    const showAll = document.getElementById('show-all');
+    if (dataLimit && phones.length > 10) {
+        phones = phones.slice(0, 9); 
+        showAll.classList.remove('d-none');
+    }
+    else{
+        showAll.classList.add('d-none');
+    }
+
 
     // display no phone
     const noPhone = document.getElementById('no-phone-found');
@@ -27,7 +35,7 @@ const displayPhone = phones => {
         const phoneDiv = document.createElement('div');
         phoneDiv.classList.add('col');
         phoneDiv.innerHTML = `
-        <div class="card p-2 m-5">
+        <div class="card p-2 mb-2 mx-4">
         <img src="${phone.image}" class="card-img-top" alt="...">
         <div class="card-body">
           <h5 class="card-title">${phone.phone_name}</h5>
@@ -40,12 +48,17 @@ const displayPhone = phones => {
     toggleSpinners(false);
 }
 
-document.getElementById('btn-search').addEventListener('click', function(){
-    // start spinners
+// data search and load function
+const processSearch = (dataLimit) => {
     toggleSpinners(true);
     const searchField = document.getElementById('search-field');
     const searchText = searchField.value;
-    loadPhone(searchText);
+    loadPhone(searchText, dataLimit);
+}
+
+document.getElementById('btn-search').addEventListener('click', function(){
+    // start spinners
+    processSearch(10)
 })
 
 const toggleSpinners = isLoading =>{
@@ -57,5 +70,11 @@ const toggleSpinners = isLoading =>{
         loaderSpinners.classList.add('d-none');
     }
 }
+
+
+// not the best way of show all ours api limitations we take this way for show all button
+document.getElementById('btn-showall').addEventListener('click', function () {
+    processSearch();
+})
 
 // loadPhone();
